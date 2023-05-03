@@ -16,12 +16,12 @@ import {
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
-import { Serialize } from 'src/interceptors/serialize.interceptors';
+import { Serialize } from '../interceptors/serialize.interceptors';
 import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 // import { CurrentUserInterceptor } from './current-user.interceptor';
 
 @Controller('auth')
@@ -71,9 +71,14 @@ export class UsersController {
   //   @UseInterceptors(SerializeInterceptor)
   //   @Serialize(UserDto)
   @Get('/:id')
-  findUserById(@Param('id') id: string) {
+  async findUserById(@Param('id') id: string) {
     // console.log('Request Handler is running');
-    return this.userService.findOne(parseInt(id));
+    const user = await this.userService.findOne(parseInt(id));
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    return user;
   }
 
   //   @Get()
