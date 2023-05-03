@@ -10,11 +10,22 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     // create a fake copy of users Service
+    const users: User[] = [];
     fakeUsersService = {
-      findOneByEmail: () => Promise.resolve(null),
+      findOneByEmail: (email: string) => {
+        const user = users.find((user) => user.email === email);
+        return Promise.resolve(user ?? null);
+      },
 
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 99999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
+      },
     };
 
     const module = await Test.createTestingModule({
@@ -44,12 +55,7 @@ describe('AuthService', () => {
   });
 
   it('throws an error if user signs up with email already in use', async () => {
-    fakeUsersService.findOneByEmail = () =>
-      Promise.resolve({
-        id: 99,
-        email: 'testuser99@gmail.com',
-        password: 'test@123',
-      } as User);
+    await service.signup('testuser99@gmail.com', 'test@123');
 
     expect(async () => {
       await service.signup('testuser99@gmail.com', 'test@123');
@@ -63,12 +69,7 @@ describe('AuthService', () => {
   });
 
   it('throws error if invalid password is provided', async () => {
-    fakeUsersService.findOneByEmail = () =>
-      Promise.resolve({
-        id: 99,
-        email: 'testuser99@gmail.com',
-        password: '123@test',
-      } as User);
+    await service.signup('testuser99@gmail.com', '123@test');
 
     expect(async () => {
       await service.signin('testuser99@gmail.com', 'test@123');
@@ -76,18 +77,7 @@ describe('AuthService', () => {
   });
 
   it('returns a user if correct password is provided', async () => {
-    // const user = await service.signup('testuser99@gmail.com', 'test@123');
-    // console.log(user.password);
-
-    // copy and paste password from console
-
-    fakeUsersService.findOneByEmail = () =>
-      Promise.resolve({
-        id: 99,
-        email: 'testuser99@gmail.com',
-        password:
-          '4fb8854ed5cafb92.a08db4340ef5323072f206862878c426dc10aa86be4e2531b4fc052a84091ab5',
-      } as User);
+    await service.signup('testuser99@gmail.com', 'test@123');
 
     const user = await service.signin('testuser99@gmail.com', 'test@123');
     expect(user).toBeDefined();
