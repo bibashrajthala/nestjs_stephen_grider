@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
-import { setUpApp } from '../src/set-up';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -13,7 +12,6 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    setUpApp(app);
     await app.init();
   });
 
@@ -25,17 +23,19 @@ describe('AppController (e2e)', () => {
   });
 
   it('handles a signup request', () => {
+    const email1 = 'testuser888@gmail.com';
+
     return request(app.getHttpServer())
       .post('/auth/signup')
       .send({
-        email: 'testuser999@gmail.com',
+        email: email1,
         password: 'test@123',
       })
       .expect(201)
       .then((res) => {
         const { id, email } = res.body;
         expect(id).toBeDefined();
-        expect(email).toEqual('testuser9@gmail.com');
+        expect(email).toEqual(email1);
       });
   });
 });
