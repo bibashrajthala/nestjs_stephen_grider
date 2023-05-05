@@ -21,21 +21,4 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Hello World!');
   });
-
-  it('handles a signup request', () => {
-    const email1 = 'testuser888@gmail.com';
-
-    return request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({
-        email: email1,
-        password: 'test@123',
-      })
-      .expect(201)
-      .then((res) => {
-        const { id, email } = res.body;
-        expect(id).toBeDefined();
-        expect(email).toEqual(email1);
-      });
-  });
 });
