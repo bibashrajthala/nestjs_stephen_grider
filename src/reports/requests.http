@@ -1,0 +1,26 @@
+### create report
+POST http://localhost:3000/reports HTTP/1.1
+Content-Type: application/json
+
+{
+  "price":50000,
+  "make":"toyoya",
+  "model":"n33n",
+  "year":2000,
+  "lng":0,
+  "lat":0,
+  "mileage":20
+ 
+}
+
+### toggle approve and disapprove of report by admin
+PATCH  http://localhost:3000/reports/1 HTTP/1.1
+Content-Type: application/json
+
+{
+ "approved:":true
+}
+
+### get estimated price of car from reports
+GET  http://localhost:3000/reports?make=toyota&model=t1&lng=0&lat=0&mileage=20000&year=1980 HTTP/1.1
+

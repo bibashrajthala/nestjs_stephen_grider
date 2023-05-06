@@ -18,8 +18,6 @@ export class AuthService {
     // see if email already exists
     const user = await this.userService.findOneByEmail(email);
 
-    console.log(user);
-
     if (user) {
       throw new BadRequestException('Email already registered!');
     }
