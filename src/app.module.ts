@@ -4,13 +4,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
-import { Report } from './reports/report.entity';
-import { User } from './users/user.entity';
+
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { config } from 'process';
+// import dbConfig from './config/ormconfig.js';
 
 const cookieSession = require('cookie-session');
+const dbConfig = require('../ormconfig.js');
 
 @Module({
   imports: [
@@ -18,17 +18,7 @@ const cookieSession = require('cookie-session');
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'sqlite',
-          database: config.get<string>('DB_NAME'),
-          entities: [User, Report],
-          synchronize: true,
-        };
-      },
-    }),
+    TypeOrmModule.forRoot(dbConfig),
 
     UsersModule,
     ReportsModule,
@@ -45,11 +35,13 @@ const cookieSession = require('cookie-session');
   ],
 })
 export class AppModule {
+  constructor(private configService: ConfigService) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         cookieSession({
-          keys: ['bibash'],
+          keys: [this.configService.get('COOKIE_KEY')],
         }),
       )
       .forRoutes('*');
